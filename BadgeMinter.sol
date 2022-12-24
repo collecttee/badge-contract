@@ -83,10 +83,9 @@ EIP712Upgradeable
         bytes memory signature
     ) public payable virtual {
         address _to = msg.sender;
-        bytes32 digest = _hashTypedDataV4(
+        bytes32 digest = ECDSAUpgradeable.toEthSignedMessageHash(
             keccak256(
                 abi.encode(
-                    _CLAIM_TYPEHASH,
                     _to,
                     badgeId
                 )
