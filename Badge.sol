@@ -9,8 +9,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 
-import "hardhat/console.sol";
-import "../utils/Utils.sol";
+
 
 contract Badge is
 Initializable,
@@ -45,13 +44,12 @@ UUPSUpgradeable
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {}
 
-    function initialize(string memory _initUri) public initializer {
+    function initialize() public initializer {
         __ERC1155_init("");
         __AccessControl_init();
         __ERC1155Supply_init();
         __UUPSUpgradeable_init();
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _uri = _initUri;
     }
 
     function setMinter(address account) external onlyRole(DEFAULT_ADMIN_ROLE) {
@@ -96,7 +94,7 @@ UUPSUpgradeable
     }
 
     function wasPublished(uint256 badgeId) public view returns (bool) {
-        console.log(getIpfsHashByBadgeId(badgeId));
+//        console.log(getIpfsHashByBadgeId(badgeId));
         return keccak256(abi.encodePacked(getIpfsHashByBadgeId(badgeId))) != keccak256(abi.encodePacked(""));
     }
 
@@ -139,7 +137,7 @@ UUPSUpgradeable
         // owner (160) / Counter Token ID (96)
         uint256 _badgeId = uint256(uint160(publisher)) * PUBLISHER_OFFSET_MULTIPLIER + // Publisher
         newTokenId; // Counter Token ID
-        console.log("Badge ID: %s", _badgeId);
+//        console.log("Badge ID: %s", _badgeId);
         ipfsHashMap[_badgeId] = ipfsHash;
 
         emit BadgePublished(
