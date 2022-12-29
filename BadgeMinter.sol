@@ -173,15 +173,15 @@ EIP712Upgradeable
         bytes memory signature
     ) internal virtual {
         address _signer = ECDSAUpgradeable.recover(digest, signature);
-        console.log("recovered signer: %s", _signer);
-        console.log("expected signer: %s", signer);
+        // console.log("recovered signer: %s", _signer);
+        // console.log("expected signer: %s", signer);
         require(_signer == signer, "_verify: invalid signature");
         require(_signer != address(0), "ECDSA: invalid signature");
     }
-    function _mintSBT(address _to){
+    function _mintSBT(address _to) private {
         if(IFireSoul(fireSoul).checkFID(_to) == true) {
             address fireAccount  = IFireSoul(fireSoul).getSoulAccount(_to);
-            address mintAmount = IFireSeed(fireSeed).getSingleAwardSbt007();
+            uint mintAmount = IFireSeed(fireSeed).getSingleAwardSbt007();
             ISbt007(SBT007).mint(fireAccount,mintAmount * (10 ** 19));
         }
     }
