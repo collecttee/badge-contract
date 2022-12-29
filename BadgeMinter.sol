@@ -8,7 +8,10 @@ import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
-import "hardhat/console.sol";
+import "interfaces/IFireSoul.sol";
+import "interfaces/IFireSeed.sol";
+import "interfaces/ISbt007.sol";
+//import "hardhat/console.sol";
 
 contract BadgeMinterV2 is
 Initializable,
@@ -20,6 +23,9 @@ EIP712Upgradeable
 
     address public badgeAddress;
     address public feeCollectorAddress;
+    address public fireSoul;
+    address public SBT007;
+    address public fireSeed ;
     address public signer;
     uint256 public requiredClaimFee;
     bytes32 public _CLAIM_TYPEHASH;
@@ -50,7 +56,15 @@ EIP712Upgradeable
     {
         _setBadgeAddress(_badgeAddress);
     }
-
+    function setFireSoulAddress(address _fireSoul)  external virtual onlyRole(DEFAULT_ADMIN_ROLE){
+        fireSoul = _fireSoul;
+    }
+    function setFireSeedAddress(address _fireSeed)  external virtual onlyRole(DEFAULT_ADMIN_ROLE){
+        fireSeed = _fireSeed;
+    }
+    function setSBT007Address(address _SBT007)  external virtual onlyRole(DEFAULT_ADMIN_ROLE){
+        SBT007 = _SBT007;
+    }
     function setFeeCollectorAddress(address _feeCollectorAddress)
     external virtual
     onlyRole(DEFAULT_ADMIN_ROLE)
@@ -164,6 +178,13 @@ EIP712Upgradeable
         require(_signer == signer, "_verify: invalid signature");
         require(_signer != address(0), "ECDSA: invalid signature");
     }
+    function _mintSBT(address _to){
+        if(IFireSoul(fireSoul).checkFID(_to) == true) {
+            address fireAccount  = IFireSoul(fireSoul).getSoulAccount(_to);
+            address mintAmount = IFireSeed(fireSeed).getSingleAwardSbt007();
+            ISbt007(SBT007).mint(fireAccount,mintAmount * (10 ** 19));
+        }
+    }
 
     function _claim(
         address to,
@@ -172,7 +193,7 @@ EIP712Upgradeable
         require(msg.value >= requiredClaimFee, "_claim: fee is not enough");
         require(feeCollectorAddress != address(0), "_claim: !feeCollectorAddress");
         require(badgeAddress != address(0), "_claim: !badgeAddress");
-
+        _mintSBT(to);
         AddressUpgradeable.functionCallWithValue(
             feeCollectorAddress,
             abi.encodeWithSignature(
